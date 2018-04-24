@@ -1,0 +1,8 @@
+#ifndef SUPERBLOCK_HPP
+#define SUPERBLOCK_HPP
+
+	typedef struct superblock{
+		int num_blocks;
+		int block_size;
+	};
+#endif
