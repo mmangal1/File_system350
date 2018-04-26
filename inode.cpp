@@ -22,5 +22,4 @@ void initalize(inode *node, char* name){
 	}	
 	node->indirect_ptrs = -1;
 	node->dindirect_ptrs = -1;
-
 }
