@@ -32,26 +32,11 @@ void create(char* file_name, int num_blocks, int block_size){
 	for(int i = 0; i < 256; i++){
 		inode_map[i] = 1;
 	}
-	uint8_t currbyte = 0;
-	int bitcount = 0;
-	int totalcount = 0;
-	/* go one block to the origin to write inode bitmap 
-	 * Need to write bytes to a file.. so 8 bits at a time*/
-	fseek(fp, block_size, SEEK_SET);
-	for(int i = 0; i < 256; i++){
-		currbyte = (currbyte << 1) | inode_map[i];
-		bitcount++;
-		if(bitcount == 8){
-			totalcount++;
-			fwrite(&currbyte, 8, 1, fp);
-			//fputc(currbyte, fp);
-			fseek(fp, block_size+totalcount, SEEK_SET);
-			currbyte = 0;
-			bitcount = 0;
-		}
-	}
+
 	fclose(fp);
-	
+	write_inode_map(inode_map, file_name, block_size, num_blocks);
+
+	/*
 	fp = fopen(file_name, "rb");
 	uint8_t test = 1;
 	int total = 0;
@@ -61,7 +46,7 @@ void create(char* file_name, int num_blocks, int block_size){
 		printf("%d\n", test);
 		total++;
 		fseek(fp, block_size+total, SEEK_SET);
-	}
+	}*/
 
 	/* this is the size of the free block list because the blocks reserved for inodes, inode map, free block list, and super block = 259 */
 	/*
@@ -86,10 +71,29 @@ void create(char* file_name, int num_blocks, int block_size){
 	}
 	
 */
-
-
-
-
-	fclose(fp);
 }
 
+void write_inode_map(int inode_map[], char* file_name, int block_size, int num_blocks){
+	FILE *fp = fopen(file_name, "wb");
+
+	uint8_t currbyte = 0;
+	int bitcount = 0;
+	int totalcount = 0;
+	/* go one block to the origin to write inode bitmap 
+	 * Need to write bytes to a file.. so 8 bits at a time*/
+	fseek(fp, block_size, SEEK_SET);
+	for(int i = 0; i < 256; i++){
+		currbyte = (currbyte << 1) | inode_map[i];
+		bitcount++;
+		if(bitcount == 8){
+			totalcount++;
+			fwrite(&currbyte, 8, 1, fp);
+			//fputc(currbyte, fp);
+			fseek(fp, block_size+totalcount, SEEK_SET);
+			currbyte = 0;
+			bitcount = 0;
+		}
+	}
+	fclose(fp);
+
+}
