@@ -202,6 +202,14 @@ int diskop::read_free_mem_iMap(){
 	return -1;
 }
 
+int diskop::get_offset(){
+	return sb.offset;
+}
+
+void update_inode_map(int index){
+	inode_map[index] = 1;
+}
+
 int diskop::read_free_disk_iMap(){
 	int bit_index = 0;
 	char buff[32];

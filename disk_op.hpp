@@ -23,6 +23,8 @@
 			void list();
 			void shutdown();
 			int search(char* filename);
+			int get_offset();
+			void update_inode_map(int index);
 		private:
 			FILE *fp;
 			int buffer_len;
