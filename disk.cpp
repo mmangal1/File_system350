@@ -1,4 +1,5 @@
 #include "disk.hpp"
+#include "inode.hpp"
 #include "super_block.hpp"
 #include <string>
 #include <iostream>
@@ -19,8 +20,6 @@ void create(char* file_name, int num_blocks, int block_size){
 		/* create the file of size block_size*num_blocks */
 		fwrite(x, block_size, num_blocks, fp);
 		/* go to the beginning of the file and write superblock data */
-		/*fseek(fp, 0, SEEK_SET);
-		fprintf(fp, "%d%d", num_blocks, block_size);*/
 	}else{
 		fprintf(stderr, "File did not open");
 		exit(1);
@@ -30,7 +29,7 @@ void create(char* file_name, int num_blocks, int block_size){
 	 * Initializing all to unused */
 	int inode_map[256];
 	for(int i = 0; i < 256; i++){
-		inode_map[i] = 1;
+		inode_map[i] = 0;
 	}
 	/* this is the size of the free block list because the blocks reserved for inodes, inode map, free block list, and super block = 259 */
 	int fbl_block_count = num_blocks - 259;
@@ -48,7 +47,7 @@ void create(char* file_name, int num_blocks, int block_size){
 	
 	int free_block_list[fbl_block_count];
 	for(int i = 0; i < (fbl_block_count); i++){
-		free_block_list[i] = 1;
+		free_block_list[i] = 0;
 	}
 	write_inode_map(inode_map, file_name, block_size, num_blocks, fp);
 	write_sb(write_fbl(free_block_list, file_name, block_size, num_blocks, fp), block_size, num_blocks, fp);
@@ -114,7 +113,17 @@ int write_fbl(int free_block_list[], char* file_name, int block_size, int num_bl
 }
 
 void write_sb(int offset, int block_size, int num_blocks, FILE *fp){
-	fseek(fp, 8, SEEK_SET);
 	fseek(fp, 0, SEEK_SET);
 	fprintf(fp, "%d%d%d", num_blocks, block_size, offset);
+}
+
+void write_inode_to_disk(int offset, FILE *fp, inode *node, block_size){
+	fseek(fp, block_size*offset, SEEK_SET);
+	fwrite(&(node -> file_name), sizeof(node -> file_name), 1, fp);
+	fwrite(&(node -> file_size), sizeof(node -> file_size), 1, fp);
+	for(int i = 0; i < 12; i++){
+		fwrite(&(node -> direct_ptrs[i]), sizeof(node -> file_name), 1, fp);
+	}
+	fwrite(&(node -> indirect_ptrs), sizeof(indirect_ptrs), 1, fp);
+	fwrite(&(node -> dindirect_ptrs), sizeof(dindirect_ptrs), 1, fp);
 }
