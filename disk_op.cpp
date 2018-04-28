@@ -1,5 +1,4 @@
 #include <iostream>
-#include "disk.hpp"
 #include "inode.hpp"
 #include "super_block.hpp"
 #include "disk_op.hpp"
@@ -8,11 +7,11 @@
 #include <bitset>
 
 using namespace std;
-superblock sb;
+
 
 diskop::diskop(char* filename, int buffer_len){
-
-	/*this->buffer_len = buffer_len;
+#if 0
+	this->buffer_len = buffer_len;
 	
 	//shared buffer?
 	buf_ptr = (int*)mmap(0, sizeof(buffer_len), PROT_WRITE|PROT_READ, MAP_SHARED, -1, 0);
@@ -24,8 +23,8 @@ diskop::diskop(char* filename, int buffer_len){
 	
 	fp = fopen(filename, "rb+");
 	if(fp != NULL){
-*/
-	/*	fread(&sb, sizeof(superblock), 1, fp);
+
+		fread(&sb, sizeof(superblock), 1, fp);
 		fseek(fp, sb.block_size, SEEK_SET);
 	
 		char* imap = (char*)malloc(sizeof(char) * sb.block_size);
@@ -48,9 +47,9 @@ diskop::diskop(char* filename, int buffer_len){
 		fseek(fp, sb.block_size*2, SEEK_SET);
 		fwrite(dmap, sb.block_size, sizeof(char), fp);
 		this->dmap = dmap;
-	*/
-//		create(filename, )
-	}
+	
+		create(filename, )
+#endif	
 	
 }
 
@@ -267,9 +266,9 @@ void diskop::update_inode(char* filename, int index){
 	fseek(fp, index*sb.block_size, SEEK_SET);
 	fwrite(&(this->imap[index]), sizeof(this->imap[index]), 1, fp);
 }
-
+/*
 void diskop::list();
 void diskop::shutdown(){
 	fclose(fp);
-}
+}*/
 
