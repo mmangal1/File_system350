@@ -8,8 +8,8 @@
 			diskop();	
 			diskop(char* filename, int buffer_size);
 			void create(char* filename, int num_blocks, int block_size);
-			int read_free_mem_iMap(char* fp);
-			int read_free_disk_iMap(char* filename);
+			int read_free_mem_iMap();
+			int read_free_disk_iMap();
 			void write_inode_map(int inode_map[], char* file_name, int block_size, int num_blocks, FILE *fp);
 			int  write_fbl(int free_block_list[], char* file_name, int block_size, int num_blocks, FILE *fp);
 			void write_inode_to_disk(int offset, FILE *fp, inode *node, int block_size);
@@ -28,7 +28,7 @@
 			int buffer_len;
 			int* buf_ptr;
 			superblock sb;
-			int imap[256];
+			int inode_map[256];
 			
 	};
 #endif

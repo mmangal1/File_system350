@@ -12,7 +12,7 @@ diskop::diskop(){
 }
 void diskop::create(char* file_name, int num_blocks, int block_size){
 	/* Creates disk */
-	FILE *fp = fopen(file_name, "wb");
+	fp = fopen(file_name, "wb");
 	int size = block_size*num_blocks;	
 	char x[size];
 	/* Superblock creation
@@ -29,7 +29,6 @@ void diskop::create(char* file_name, int num_blocks, int block_size){
 
 	/* inode map creation in memory 
 	 * Initializing all to unused */
-	int inode_map[256];
 	for(int i = 0; i < 256; i++){
 		inode_map[i] = 1;
 	}
@@ -44,7 +43,7 @@ void diskop::create(char* file_name, int num_blocks, int block_size){
 		fbl_block_count = num_blocks - num;
 			
 	}
-	cout << "test: " << fbl_block_count << endl;
+	//cout << "test: " << fbl_block_count << endl;
 
 	
 	int free_block_list[fbl_block_count];
@@ -56,7 +55,8 @@ void diskop::create(char* file_name, int num_blocks, int block_size){
 	write_sb(offset, block_size, num_blocks, fp);
 	sb.block_size = block_size;
 	sb.num_blocks = num_blocks;
-	sb.offset = offset; 
+	sb.offset = offset;
+	cout << read_free_disk_iMap() << endl;
 	fclose(fp);
 }
 
@@ -187,10 +187,11 @@ void diskop::read(char *filename, int startByte, int numByte){
 */			
 }
 
-int diskop::read_free_mem_iMap(char* filename){
+int diskop::read_free_mem_iMap(){
 	uint8_t byte = 0;
-	for(int x = 0; x < sizeof(imap)/sizeof(imap[0]); x++){
-		byte = imap[x];
+	for(int x = 0; x < sizeof(inode_map)/sizeof(inode_map[0]); x++){
+		byte = inode_map[x];
+		
 		if(byte == 0){
 			char buff[8];
 			fseek(fp, 8, SEEK_SET);
@@ -201,17 +202,18 @@ int diskop::read_free_mem_iMap(char* filename){
 	return -1;
 }
 
-int diskop::read_free_disk_iMap(char* filename){
+int diskop::read_free_disk_iMap(){
 	int bit_index = 0;
-	char* buff;
+	char buff[32];
 	fseek(fp, sb.block_size, SEEK_SET);
 	fread(buff, 1, 32, fp);
 	for(int x = 0; x < 32; x++){
-		cout << buff[x] << endl;
-		/*
+		cout << buff[x] - '0' << endl;	
 		if((buff[x] - '0') == 0){
+			cout << "found it" << endl;
 			return bit_index;
 		}else if((buff[x]) < 255){
+			cout << "didnt findd it" << endl;
 			for(int y = 0; y < 8; y++){
 				int curr_bit = (buff[x] & (1 << (y))) ;
 				if(curr_bit == 0){
@@ -221,7 +223,7 @@ int diskop::read_free_disk_iMap(char* filename){
 			}
 		}
 		bit_index+=8;
-		*/
+		
 	}
 	return -1;
 }
