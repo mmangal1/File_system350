@@ -2,6 +2,7 @@
 #include "inode.hpp"
 #include "super_block.hpp"
 #include "inode.hpp"
+#include "disk_op.hpp"
 #include <string>
 #include <iostream>
 #include <fstream>
@@ -30,7 +31,7 @@ void create(char* file_name, int num_blocks, int block_size){
 	 * Initializing all to unused */
 	int inode_map[256];
 	for(int i = 0; i < 256; i++){
-		inode_map[i] = 0;
+		inode_map[i] = 1;
 	}
 	/* this is the size of the free block list because the blocks reserved for inodes, inode map, free block list, and super block = 259 */
 	int fbl_block_count = num_blocks - 259;
@@ -48,7 +49,7 @@ void create(char* file_name, int num_blocks, int block_size){
 	
 	int free_block_list[fbl_block_count];
 	for(int i = 0; i < (fbl_block_count); i++){
-		free_block_list[i] = 0;
+		free_block_list[i] = 1;
 	}
 	write_inode_map(inode_map, file_name, block_size, num_blocks, fp);
 	write_sb(write_fbl(free_block_list, file_name, block_size, num_blocks, fp), block_size, num_blocks, fp);
@@ -59,7 +60,7 @@ void write_inode_map(int inode_map[], char* file_name, int block_size, int num_b
 	uint8_t currbyte = 0;
 	int bitcount = 0;
 	int totalcount = 0;
-	inode_map[60] = 1;
+	inode_map[60] = 0;
 	/* go one block to the origin to write inode bitmap 
 	 * Need to write bytes to a file.. so 8 bits at a time*/
 	fseek(fp, block_size, SEEK_SET);
@@ -82,7 +83,7 @@ int write_fbl(int free_block_list[], char* file_name, int block_size, int num_bl
 	int bitcount = 0;
 	int totalcount = 0;
 	fseek(fp, 2*block_size, SEEK_SET);
-	free_block_list[49] = 1;
+	free_block_list[49] = 0;
 	for(int i = 0; i < (num_blocks - 259); i++){
 		currbyte = (currbyte << 1) | free_block_list[i];
 		bitcount++;
@@ -96,7 +97,7 @@ int write_fbl(int free_block_list[], char* file_name, int block_size, int num_bl
 	}
 	if(bitcount != 0){
 		while(bitcount != 8){
-			currbyte = (currbyte << 1) | free_block_list[i];
+			currbyte = (currbyte << 1) | 1;
 			bitcount++;
 		}
 		totalcount++;
@@ -118,13 +119,13 @@ void write_sb(int offset, int block_size, int num_blocks, FILE *fp){
 	fprintf(fp, "%d%d%d", num_blocks, block_size, offset);
 }
 
-void write_inode_to_disk(int offset, FILE *fp, inode *node, block_size){
+void write_inode_to_disk(int offset, FILE *fp, inode *node, int block_size){
 	fseek(fp, block_size*offset, SEEK_SET);
 	fwrite(&(node -> file_name), sizeof(node -> file_name), 1, fp);
 	fwrite(&(node -> file_size), sizeof(node -> file_size), 1, fp);
 	for(int i = 0; i < 12; i++){
 		fwrite(&(node -> direct_ptrs[i]), sizeof(node -> file_name), 1, fp);
 	}
-	fwrite(&(node -> indirect_ptrs), sizeof(indirect_ptrs), 1, fp);
-	fwrite(&(node -> dindirect_ptrs), sizeof(dindirect_ptrs), 1, fp);
+	fwrite(&(node -> indirect_ptrs), sizeof(node -> indirect_ptrs), 1, fp);
+	fwrite(&(node -> dindirect_ptrs), sizeof(node -> dindirect_ptrs), 1, fp);
 }
