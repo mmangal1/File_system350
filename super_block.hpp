@@ -4,5 +4,6 @@
 	typedef struct superblock{
 		int num_blocks;
 		int block_size;
+		int offset;
 	} superblock;
 #endif
