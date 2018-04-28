@@ -206,7 +206,15 @@ int diskop::get_offset(){
 	return sb.offset;
 }
 
-void update_inode_map(int index){
+int diskop::get_block_size(){
+	return sb.block_size;
+}
+
+int diskop::get_num_blocks(){
+	return sb.num_blocks;
+}
+
+void diskop::update_inode_map(int index){
 	inode_map[index] = 1;
 }
 

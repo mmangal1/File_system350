@@ -24,6 +24,8 @@
 			void shutdown();
 			int search(char* filename);
 			int get_offset();
+			int get_block_size();
+			int get_num_blocks();
 			void update_inode_map(int index);
 		private:
 			FILE *fp;
