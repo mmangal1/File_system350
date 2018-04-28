@@ -8,4 +8,9 @@ disk.o: disk.cpp disk.hpp
 
 inode.o: inode.cpp inode.hpp
 	g++ -g -c inode.cpp -o inode.o
-	
+
+clean:
+	rm -f *.o
+	rm -f *.txt
+	rm -f *.bin
+	rm -f test
