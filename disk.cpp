@@ -36,35 +36,23 @@ void create(char* file_name, int num_blocks, int block_size){
 	int fbl_block_count = num_blocks - 259;
 	//Need more than one block for free list.
 	int num = 259;
-	float testing = (num_blocks - num);
 	int bs = block_size*8;
-	while(testing > bs){
+	while(fbl_block_count > bs){
 		num++;
 		bs = bs*2;
-		testing = num_blocks - num;
+		fbl_block_count = num_blocks - num;
 			
 	}
-	cout << "test: " << num << endl;
-	/*
+	cout << "test: " << fbl_block_count << endl;
+
+	
 	int free_block_list[fbl_block_count];
 	for(int i = 0; i < (fbl_block_count); i++){
-		free_block_list[i] = 0;
+		free_block_list[i] = 1;
 	}
 	write_inode_map(inode_map, file_name, block_size, num_blocks, fp);
 	write_sb(write_fbl(free_block_list, file_name, block_size, num_blocks, fp), block_size, num_blocks, fp);
 	fclose(fp);
-*/
-	/*
-	fp = fopen(file_name, "rb");
-	uint8_t test = 1;
-	int total = 0;
-	fseek(fp, block_size+total, SEEK_SET);
-	for(int i = 0; i < 8; i++){
-		fread(&test, 1, 1, fp);
-		printf("%d\n", test);
-		total++;
-		fseek(fp, block_size+total, SEEK_SET);
-	}*/
 }
 
 void write_inode_map(int inode_map[], char* file_name, int block_size, int num_blocks, FILE *fp){
@@ -87,7 +75,7 @@ void write_inode_map(int inode_map[], char* file_name, int block_size, int num_b
 		}
 	}
 }
-/*
+
 int write_fbl(int free_block_list[], char* file_name, int block_size, int num_blocks, FILE *fp){
 	int currbyte = 0;
 	int bitcount = 0;
@@ -120,11 +108,11 @@ int write_fbl(int free_block_list[], char* file_name, int block_size, int num_bl
 		num++;
 	}
 	offset = (block_size+totalcount+num)/block_size + 2*block_size;
-	return offset;
-}*/
-/*
-void write_sb(offset, char* file_name, int block_size, int num_blocks, FILE *fp){
+	return offset-256;
+}
+
+void write_sb(int offset, int block_size, int num_blocks, FILE *fp){
 	fseek(fp, 8, SEEK_SET);
 	fseek(fp, 0, SEEK_SET);
 	fprintf(fp, "%d%d%d", num_blocks, block_size, offset);
-}*/
+}
