@@ -1,6 +1,7 @@
 #include "disk.hpp"
 #include "inode.hpp"
 #include "super_block.hpp"
+#include "inode.hpp"
 #include <string>
 #include <iostream>
 #include <fstream>
