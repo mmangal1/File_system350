@@ -60,6 +60,7 @@ void write_inode_map(int inode_map[], char* file_name, int block_size, int num_b
 	uint8_t currbyte = 0;
 	int bitcount = 0;
 	int totalcount = 0;
+	inode_map[60] = 1;
 	/* go one block to the origin to write inode bitmap 
 	 * Need to write bytes to a file.. so 8 bits at a time*/
 	fseek(fp, block_size, SEEK_SET);
@@ -82,6 +83,7 @@ int write_fbl(int free_block_list[], char* file_name, int block_size, int num_bl
 	int bitcount = 0;
 	int totalcount = 0;
 	fseek(fp, 2*block_size, SEEK_SET);
+	free_block_list[49] = 1;
 	for(int i = 0; i < (num_blocks - 259); i++){
 		currbyte = (currbyte << 1) | free_block_list[i];
 		bitcount++;
@@ -95,13 +97,13 @@ int write_fbl(int free_block_list[], char* file_name, int block_size, int num_bl
 	}
 	if(bitcount != 0){
 		while(bitcount != 8){
-			currbyte = (currbyte << 1) | 1;
+			currbyte = (currbyte << 1) | free_block_list[i];
 			bitcount++;
 		}
 		totalcount++;
 		fwrite(&currbyte, 8, 1, fp);
-
 	}
+	
 	int num = 0;
 	int offset = (block_size+totalcount)%block_size;
 	while(offset != 0){
