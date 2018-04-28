@@ -46,11 +46,12 @@ for(int j = 0; j < num_blocks; j++){
 //read_fbl
 vector<int> read_fbl(){
 	vector<int> ret_val;
-	for(int i = 0; i < num_blocks - 259; i++){
+	for(int i = 0; i < num_blocks - 259; i++){//make the loop 'free_block_count' times
 		if(free_block_list[i] == 0){
-			
+			ret_val.push_back(i+/*offset*/);
 		}
 	}
+return ret_val;
 }
 
 
