@@ -58,7 +58,15 @@ void create(char* filename);
 void import(char* ssfs_filename, char* unix_filename);
 void cat(char* filename);
 void del(char* filename);
-void write(char *filename, char c, int startByte, int numByte);
+void write(char *filename, char c, int startByte, int numByte){
+	int file_index = search(filename);
+	inode file_inode;
+	
+	fseek(fp, file_index*sb.block_size, SEEK_SET);
+	fread(&file_inode, sizeof(inode), 1, fp);
+	
+	
+}
 
 void read(char *filename, int startByte, int numByte){
 	int inode_index = search(filename);
@@ -85,6 +93,40 @@ void read(char *filename, int startByte, int numByte){
 		//mod by sb.block_size????
 	}
 			
+}
+
+int read_free_mem_iMap(int[] imap, char* fp){
+	uint8_t byte = 0;
+	for(int x = 0; x < imap.size(); x++){
+		byte = imap[x];
+		if(byte == 0){
+			char* buff;
+			fseek(fp, 8, SEEK_SET);
+			fread(buff, sizeof(int), 1, fp);
+			return x + atoi[buff];
+		}
+	}
+}
+
+int read_free_disk_iMap(char* filename){
+	int bit_index = 0;
+	char* buff;
+	fseek(fp, sb.block_size, SEEK_SET)
+	fread(buff, 1, 32, fp);
+	for(int x = 0; x < 32; x++){
+		if(buff[x] == 0){
+			return bit_index;
+		}else if(buff[x] < 255){
+			for(int y = 0; y < 8; y++){
+				int curr_bit = (buff[x] & (1 << (y))) ;
+				if(curr_bit == 0){
+					return bit_index;
+				}
+				bit_index++;
+			}
+		}
+		bit_index+8;
+	}
 }
 
 void update_inode(char* filename, int index){
