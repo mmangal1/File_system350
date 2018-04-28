@@ -1,57 +1,12 @@
 #include <iostream>
-#include "inode.hpp"
-#include "super_block.hpp"
-#include "disk_op.hpp"
 #include <string>
 #include <fstream>
 #include <bitset>
+#include "inode.hpp"
+#include "super_block.hpp"
+#include "disk_op.hpp"
 
 using namespace std;
-
-
-diskop::diskop(char* filename, int buffer_len){
-#if 0
-	this->buffer_len = buffer_len;
-	
-	//shared buffer?
-	buf_ptr = (int*)mmap(0, sizeof(buffer_len), PROT_WRITE|PROT_READ, MAP_SHARED, -1, 0);
-
-	if(buf_ptr < 0){
-		fprintf(stderr, "Error with shared memory");
-		exit(1);
-	}
-	
-	fp = fopen(filename, "rb+");
-	if(fp != NULL){
-
-		fread(&sb, sizeof(superblock), 1, fp);
-		fseek(fp, sb.block_size, SEEK_SET);
-	
-		char* imap = (char*)malloc(sizeof(char) * sb.block_size);
-		char* dmap = (char*)malloc(sizeof(char) * sb.block_size);
-
-		//initialize imap and dmap to 0
-		for(int x = 0; x < sb.block_size; x++){
-			imap[x] = 0;
-			dmap[x] = 0;
-		}
-		
-		//populate file with imap
-		rewind(fp);
-		fseek(fp, sb.block_size, SEEK_SET);
-		fwrite(imap, sb.block_size, sizeof(char), fp);
-		this->imap = imap;
-
-		//populate file with dmap
-		rewind(fp);
-		fseek(fp, sb.block_size*2, SEEK_SET);
-		fwrite(dmap, sb.block_size, sizeof(char), fp);
-		this->dmap = dmap;
-	
-		create(filename, )
-#endif	
-	
-}
 
 void diskop::create(char* file_name, int num_blocks, int block_size){
 	/* Creates disk */
@@ -271,4 +226,5 @@ void diskop::list();
 void diskop::shutdown(){
 	fclose(fp);
 }*/
+
 

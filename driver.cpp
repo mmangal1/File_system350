@@ -2,7 +2,7 @@
 #include <string>
 #include <stdlib.h>
 #include <sstream>
-#include "disk.hpp"
+#include "disk_op.hpp"
 
 using namespace std;
 
