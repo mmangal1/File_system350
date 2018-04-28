@@ -2,6 +2,7 @@
 #include <string>
 #include <stdlib.h>
 #include <sstream>
+#include "inode.hpp"
 #include "disk_op.hpp"
 
 using namespace std;
@@ -25,6 +26,8 @@ int main(int args, char* argv[]){
 			exit(1);
 		}
 	}
+
+	diskop *disk = new diskop();
 	string num_blocks(argv[1]);
 	string block_size(argv[2]);
 	int x, y;
@@ -32,7 +35,7 @@ int main(int args, char* argv[]){
 	str >> x;
 	stringstream str1(block_size);
 	str1 >> y;
-	create(argv[3], x, y);	
+	disk -> create(argv[3], x, y);	
 	
 	return 0;	 	
 }

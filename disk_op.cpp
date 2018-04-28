@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cstdio>
 #include <string>
 #include <fstream>
 #include <bitset>
@@ -7,7 +8,8 @@
 #include "disk_op.hpp"
 
 using namespace std;
-
+diskop::diskop(){
+}
 void diskop::create(char* file_name, int num_blocks, int block_size){
 	/* Creates disk */
 	FILE *fp = fopen(file_name, "wb");
@@ -132,8 +134,8 @@ void diskop::write_inode_to_disk(int offset, FILE *fp, inode *node, int block_si
 	fwrite(&(node -> dindirect_ptrs), sizeof(node -> dindirect_ptrs), 1, fp);
 }
 	
-int diskop::search(char* filename){
-	for(int x = 0; x < imap.size(); x++){
+/*int diskop::search(char* filename){
+	for(int x = 0; x < sizeof(imap)/sizeof(imap[0]); x++){
 		if(imap[x] == 1){
 			if(strcmp(imap[x].file_name, filename) == 0){
 				return x;
@@ -142,22 +144,24 @@ int diskop::search(char* filename){
 	}
 	return -1;
 
-}
-void diskop::import(char* ssfs_filename, char* unix_filename);
-void diskop::cat(char* filename);
-void diskop::del(char* filename);
+}*/
+void diskop::import(char* ssfs_filename, char* unix_filename){}
+void diskop::cat(char* filename){}
+void diskop::del(char* filename){}
 void diskop::write(char *filename, char c, int startByte, int numByte){
+
+/*
 	int file_index = search(filename);
 	inode file_inode;
 	
 	fseek(fp, file_index*sb.block_size, SEEK_SET);
 	fread(&file_inode, sizeof(inode), 1, fp);
-	
+*/	
 	
 }
 
 void diskop::read(char *filename, int startByte, int numByte){
-	int inode_index = search(filename);
+/*	int inode_index = search(filename);
 	inode inode_1;
 	
 	fseek(fp, inode_index*sb.block_size, SEEK_SET);
@@ -171,7 +175,7 @@ void diskop::read(char *filename, int startByte, int numByte){
 		num_blocks++;
 	}
 
-	for(int x = st; x < 12; x++){
+	for(int x = startByte; x < 12; x++){
 		//check bit of data block for valid
 		rewind(fp);
 		fseek(fp, sb.block_size*inode_1[x], SEEK_SET);
@@ -180,31 +184,34 @@ void diskop::read(char *filename, int startByte, int numByte){
 		beg_byte++;
 		//mod by sb.block_size????
 	}
-			
+*/			
 }
 
-int diskop::read_free_mem_iMap(char* fp){
+int diskop::read_free_mem_iMap(char* filename){
 	uint8_t byte = 0;
-	for(int x = 0; x < imap.size(); x++){
+	for(int x = 0; x < sizeof(imap)/sizeof(imap[0]); x++){
 		byte = imap[x];
 		if(byte == 0){
-			char* buff;
+			char buff[8];
 			fseek(fp, 8, SEEK_SET);
 			fread(buff, sizeof(int), 1, fp);
-			return x + atoi[buff];
+			return x + atoi(buff);
 		}
 	}
+	return -1;
 }
 
 int diskop::read_free_disk_iMap(char* filename){
 	int bit_index = 0;
 	char* buff;
-	fseek(fp, sb.block_size, SEEK_SET)
+	fseek(fp, sb.block_size, SEEK_SET);
 	fread(buff, 1, 32, fp);
 	for(int x = 0; x < 32; x++){
-		if(buff[x] == 0){
+		cout << buff[x] << endl;
+		/*
+		if((buff[x] - '0') == 0){
 			return bit_index;
-		}else if(buff[x] < 255){
+		}else if((buff[x]) < 255){
 			for(int y = 0; y < 8; y++){
 				int curr_bit = (buff[x] & (1 << (y))) ;
 				if(curr_bit == 0){
@@ -213,15 +220,17 @@ int diskop::read_free_disk_iMap(char* filename){
 				bit_index++;
 			}
 		}
-		bit_index+8;
+		bit_index+=8;
+		*/
 	}
+	return -1;
 }
 
-void diskop::update_inode(char* filename, int index){
+/*void diskop::update_inode(char* filename, int index){
 	fseek(fp, index*sb.block_size, SEEK_SET);
 	fwrite(&(this->imap[index]), sizeof(this->imap[index]), 1, fp);
 }
-/*
+
 void diskop::list();
 void diskop::shutdown(){
 	fclose(fp);

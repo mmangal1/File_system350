@@ -1,8 +1,11 @@
 #ifndef DISK_OP_HPP
 #define DISK_OP_HPP
+#include "inode.hpp"
 #include "super_block.hpp"
+
 	class diskop{
-		public:	
+		public:
+			diskop();	
 			diskop(char* filename, int buffer_size);
 			void create(char* filename, int num_blocks, int block_size);
 			int read_free_mem_iMap(char* fp);
