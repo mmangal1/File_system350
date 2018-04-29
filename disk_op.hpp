@@ -25,8 +25,9 @@ using namespace std;
 			int read_free_mem_iMap();
 			int read_free_disk_iMap();
 			void write_inode_map(int inode_map[], char* file_name, int block_size, int num_blocks, FILE *fp);
-			int  write_fbl(int free_block_list[], char* file_name, int block_size, int num_blocks, FILE *fp);
-			void write_inode_to_disk(int offset, FILE *fp, inode *node, int block_size);
+			void  write_fbl(int free_block_list[], char* file_name, int block_size, int num_blocks, FILE *fp);
+			void write_inode_to_disk(int offset, FILE *fp, inode *node);
+			void read_inode_to_disk(int offset, FILE *fp);
 			void write_sb(int offset, int block_size, int num_blocks, FILE *fp);
 			void create(char* filename);
 			void import(char* ssfs_filename, char* unix_filename);
@@ -51,6 +52,7 @@ using namespace std;
 			superblock sb;
 			int inode_map[256];
 			int fbl_block_count;
+			vector<inode*> inode_mem;
 			
 	};
 #endif
