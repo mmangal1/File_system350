@@ -1,10 +1,24 @@
 #ifndef DISK_OP_HPP
 #define DISK_OP_HPP
-#include "inode.hpp"
+//#include "inode.hpp"
 #include "super_block.hpp"
+#include <vector>
+
+using namespace std;
 
 	class diskop{
 		public:
+		class inode{
+			public:
+				inode(){};
+				void initialize(string file_name, diskop *disk);
+				string file_name;
+				int file_size;
+				int direct_ptrs[12];
+				int indirect_ptrs;
+				int dindirect_ptrs;
+			
+		};	
 			diskop();	
 			diskop(char* filename, int buffer_size);
 			void create(char* filename, int num_blocks, int block_size);
@@ -27,12 +41,16 @@
 			int get_block_size();
 			int get_num_blocks();
 			void update_inode_map(int index);
+			vector<int> read_fbl();
 		private:
+			inode *node;
 			FILE *fp;
 			int buffer_len;
 			int* buf_ptr;
+			int* free_block_list;
 			superblock sb;
 			int inode_map[256];
+			int fbl_block_count;
 			
 	};
 #endif

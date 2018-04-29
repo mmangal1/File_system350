@@ -2,16 +2,17 @@
 #include <string>
 #include <cstring>
 #include "inode.hpp"
+#include "disk_op.hpp"
 #include <sys/stat.h>
 
 
-void initalize(char* file_name){
+void inode::initialize(string file_name, diskop *disk){
 	
 	struct stat st;
 
-	strcpy(this->file_name, file_name);
+	this -> file_name = file_name;
 	
-	if(stat(name, &st) != 0){
+	if(stat(file_name.c_str(), &st) != 0){
 		fprintf(stderr, "file_size is 0");
 		exit(1);
 	}
@@ -29,14 +30,14 @@ void initalize(char* file_name){
 	//lock here
 
 
-	int index = search(filename);
+	int index = disk -> read_free_mem_iMap();
 	//file is on disk
 	if(index != -1){
 		on_disk = 1;
 		//index = search//
 	}else{
 		//if file is not on disk make sure there is a free inode for it
-		index = read_free_mem_iMap();
+		index = disk -> read_free_mem_iMap();
 	}
 
 	// case where there is not an available free inode
@@ -45,10 +46,10 @@ void initalize(char* file_name){
 		exit(1);
 	}
 	//number of blocks needed to store the file
-	int num_blocks = file_size / get_block_size();
+	int num_blocks = file_size / disk->get_block_size();
 
 	//vector to hold free blocks we will be giving to the inode
-	vector<int> freeBlocks = read_fbl;
+	vector<int> freeBlocks = disk->read_fbl();
 //TODO: add code to handle the need for additional bytes for indirect blocks
 	if(freeBlocks.size() < num_blocks){
 		//do not conduct the write
@@ -57,7 +58,7 @@ void initalize(char* file_name){
 	}
 
 	//number if ints an indirect block can hold
-	int num_indirect = get_block_size() / 4;
+	int num_indirect = disk->get_block_size() / 4;
 
 	for(int j = 0; j < num_blocks; j++){
 		if(j < 12){
@@ -80,11 +81,13 @@ void initalize(char* file_name){
 	}
 
 	//write the inode to memory
-	set_inode_map(index);
+	disk->update_inode_map(index);
 	
 
 
 //TODO
 	//unlock
+	//
+
 
 }
