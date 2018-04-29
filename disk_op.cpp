@@ -122,7 +122,7 @@ void diskop::create(char* file_name, int num_blocks, int block_size){
 	/* inode map creation in memory 
 	 * Initializing all to unused */
 	for(int i = 0; i < 256; i++){
-		inode_map[i] = 1;
+		inode_map[i] = 0;
 	}
 	/* this is the size of the free block list because the blocks reserved for inodes, inode map, free block list, and super block = 259 */
 	fbl_block_count = num_blocks - 259;
@@ -140,7 +140,7 @@ void diskop::create(char* file_name, int num_blocks, int block_size){
 	
 	free_block_list = (int*)malloc(sizeof(int)*fbl_block_count);
 	for(int i = 0; i < (fbl_block_count); i++){
-		free_block_list[i] = 1;
+		free_block_list[i] = 0;
 	}
 	write_inode_map(inode_map, file_name, block_size, num_blocks, fp);
 	int offset = write_fbl(free_block_list, file_name, block_size, num_blocks,fp);
