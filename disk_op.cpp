@@ -54,10 +54,18 @@ void diskop::inode::initialize(string filename, diskop *disk){
 		exit(1);
 	}
 	//number of blocks needed to store the file
-	int num_blocks = file_size / disk->get_block_size();
+	int num_blocks;
+	if(file_size < disk->get_block_size()){
+		num_blocks = 1;
+	}else if (file_size % disk->get_block_size() == 0){
+		num_blocks = (file_size / disk->get_block_size());
+	}else{
+		num_blocks = (file_size / disk->get_block_size()) + 1;
+	}
 
 	//vector to hold free blocks we will be giving to the inode
 	vector<int> freeBlocks = disk->read_fbl();
+
 //TODO: add code to handle the need for additional bytes for indirect blocks
 	if(freeBlocks.size() < num_blocks){
 		//do not conduct the write
@@ -67,21 +75,21 @@ void diskop::inode::initialize(string filename, diskop *disk){
 
 	//number if ints an indirect block can hold
 	int num_indirect = disk->get_block_size() / 4;
-
 	for(int j = 0; j < num_blocks; j++){
 		if(j < 12){
-			this->direct_ptrs[j] = freeBlocks[j];
+			cout << "here  " << freeBlocks.at(j) << endl;
+			this->direct_ptrs[j] = freeBlocks.at(j);
 		}else if(j >= 12 && j < num_indirect + 12){
 			// write the next free block to the indirect block
 			if(j == 12){
-				this->indirect_ptrs = freeBlocks[j];
+				this->indirect_ptrs = freeBlocks.at(j);
 			}else{
 				//write free blocks into the ptr's block
 			}
 			
 		}else{
 			if(j == num_indirect + 12){
-				this->dindirect_ptrs = freeBlocks[j];
+				this->dindirect_ptrs = freeBlocks.at(j);
 			}else{
 				//write free blocks into the ptr's block
 			}
@@ -159,7 +167,7 @@ vector<int> diskop::read_fbl(){
 	vector<int> ret_val;
 	for(int i = 0; i < fbl_block_count; i++){//make the loop 'free_block_count' times
 		if(free_block_list[i] == 0){
-			ret_val.push_back(i+sb.offset);
+			ret_val.push_back(i+sb.offset+256);
 		}
 	}
 	return ret_val;
