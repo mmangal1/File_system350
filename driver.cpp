@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <sstream>
 #include "inode.hpp"
-#include "disk_op.hpp"
+#include "ryan.hpp"
 
 using namespace std;
 
@@ -27,7 +27,7 @@ int main(int args, char* argv[]){
 		}
 	}
 
-	diskop *disk = new diskop();
+	ryan *disk = new ryan();
 	string num_blocks(argv[1]);
 	string block_size(argv[2]);
 	int x, y;
