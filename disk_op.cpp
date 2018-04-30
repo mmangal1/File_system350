@@ -102,7 +102,10 @@ void diskop::inode::initialize(string filename, diskop *disk){
 
 	//write the inode to memory
 	disk->write_inode_to_disk(disk->get_offset() + (disk->read_free_mem_iMap() * disk -> sb.block_size) - (256 * disk -> sb.block_size), disk -> fp, this);
+	disk -> inode_mem.push_back(this);
 	disk->update_inode_map(index);
+	disk->write_data_to_disk(filename);
+
 	//disk->write_inode_to_disk(disk->get_offset() + (disk->read_free_mem_iMap() * disk -> sb.block_size) - (256 * disk -> sb.block_size), disk -> fp, this);
 	//(disk->read_free_mem_iMap() * disk -> sb.block_size)
 
@@ -163,7 +166,7 @@ void diskop::create(char* file_name, int num_blocks, int block_size){
 	node->initialize("foo.txt",  this);
 	fclose(fp);
 	fp = fopen(file_name, "rb");
-	read_inode_to_disk(offset - (256 * sb.block_size), fp);
+	read_inode_from_disk(offset - (256 * sb.block_size), fp);
 	fclose(fp);
 }
 
@@ -249,7 +252,7 @@ void diskop::write_inode_to_disk(int offset, FILE *fp, inode *node){
 }
 	
 
-void diskop::read_inode_to_disk(int offset, FILE *fp){
+void diskop::read_inode_from_disk(int offset, FILE *fp){
 	fseek(fp, offset, SEEK_SET);
 	inode* node1 = new inode();
 	fread(&(node1 -> file_name), sizeof(node1 -> file_name), 1, fp);
@@ -283,16 +286,59 @@ void diskop::read_inode_to_disk(int offset, FILE *fp){
 void diskop::import(char* ssfs_filename, char* unix_filename){}
 void diskop::cat(char* filename){}
 void diskop::del(char* filename){}
-void diskop::write(char *filename, char c, int startByte, int numByte){
+void diskop::write_data_to_disk(string filename){
+	vector<inode*>::iterator iter;
+	bool found = false;
+	bool done = false;
+	for(iter = inode_mem.begin(); iter != inode_mem.end(); iter++){
+		inode *test = *iter;
+		if(test->file_name == filename){
+			found = true;
+			break;
+		}
+	}
+	if(!found){
+		read_inode_from_disk(sb.offset-256*sb.block_size, fp);
+		for(iter = inode_mem.begin(); iter != inode_mem.end(); iter++){
+			inode *test = *iter;
+			if(test->file_name == filename){
+				found = true;
+				break;
+			}
+		}
+		if(!found){
+			inode *new_node = new inode();
+			new_node -> initialize(filename, this);
+			for(iter = inode_mem.begin(); iter != inode_mem.end(); iter++){
+				inode *test = *iter;
+				if(test->file_name == filename){
+					found = true;
+					break;
+				}
+			}
+		}
+		if(!found){
+			fprintf(stderr, "error: file %s could not be found", filename);
+			exit(1);
+		}
+	}
+	
 
-/*
-	int file_index = search(filename);
-	inode file_inode;
-	
-	fseek(fp, file_index*sb.block_size, SEEK_SET);
-	fread(&file_inode, sizeof(inode), 1, fp);
-*/	
-	
+	FILE *file_to_write = fopen(filename.c_str(), "rb");
+	inode *node_to_write = *iter;
+	for(int i = 0; i < 12; i++){
+		if(node_to_write->direct_ptrs[i] == 0){
+			done = true;
+			break;
+		}
+		if(!done){
+			fseek(fp, sb.offset + node_to_write -> direct_ptrs[i]*sb.block_size, SEEK_SET);
+			char buff[sb.block_size];
+			fread(&buff, sb.block_size, 1, file_to_write);
+			fwrite(&buff, sb.block_size, 1, fp);
+		}
+	}
+	fclose(file_to_write);
 }
 
 void diskop::read(char *filename, int startByte, int numByte){
