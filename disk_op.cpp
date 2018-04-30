@@ -284,7 +284,45 @@ void diskop::read_inode_from_disk(int offset, FILE *fp){
 
 }*/
 void diskop::import(char* ssfs_filename, char* unix_filename){}
-void diskop::cat(char* filename){}
+void diskop::cat(char *filename){
+	vector<inode*>::iterator iter;
+	bool found = false;
+	bool done = false;
+	int count = 3;
+	for(iter = inode_mem.begin(); iter != inode_mem.end(); iter++){
+		inode *test = *iter;
+		if(test->file_name == filename){
+			fseek(fp, count*block_size, SEEK_SET);
+			char buff[sb.block_size];
+			fread(&buff, startByte, test->file_size, fp);
+			cout << buff << endl;
+			found = true;
+			break;
+		}
+		count++;
+	}
+	if(!found){
+		count = 3;
+		read_inode_from_disk(sb.offset-256*sb.block_size, fp);
+		for(iter = inode_mem.begin(); iter != inode_mem.end(); iter++){
+			inode *test = *iter;
+			if(test->file_name == filename){
+				fseek(fp, count*block_size, SEEK_SET);
+				char buff[sb.block_size];
+				fread(&buff, startByte, test->file_size, fp);
+				cout << buff << endl;
+				found = true;
+				break;
+			}
+			count++;
+		}
+		if(!found){
+			fprintf(stderr, "error: file %s could not be found", filename);
+			exit(1);
+		}
+	}
+
+}
 void diskop::del(char* filename){}
 void diskop::write_data_to_disk(string filename){
 	vector<inode*>::iterator iter;
@@ -342,30 +380,37 @@ void diskop::write_data_to_disk(string filename){
 }
 
 void diskop::read(char *filename, int startByte, int numByte){
-/*	int inode_index = search(filename);
-	inode inode_1;
-	
-	fseek(fp, inode_index*sb.block_size, SEEK_SET);
-	fread(&inode_1, sizeof(inode), 1, fp);
-	rewind(fp);
-	
-	char *data = (char*)malloc(sizeof(char)*sb.block_size);
-	int beg_byte = startByte%(sb.block_size);
-	int num_blocks = numByte/(sb.block_size);
-	if((numByte%sb.block_size) > 0){
-		num_blocks++;
+	vector<inode*>::iterator iter;
+	bool found = false;
+	bool done = false;
+	for(iter = inode_mem.begin(); iter != inode_mem.end(); iter++){
+		inode *test = *iter;
+		if(test->file_name == filename){
+			char buff[sb.block_size];
+			fread(&buff, startByte, numByte, test->file_name);
+			cout << buff << endl;
+			found = true;
+			break;
+		}
+	}
+	if(!found){
+		read_inode_from_disk(sb.offset-256*sb.block_size, fp);
+		for(iter = inode_mem.begin(); iter != inode_mem.end(); iter++){
+			inode *test = *iter;
+			if(test->file_name == filename){
+				char buff[sb.block_size];
+				fread(&buff, startByte, numByte, test->file_name);
+				cout << buff << endl;
+				found = true;
+				break;
+			}
+		}
+		if(!found){
+			fprintf(stderr, "error: file %s could not be found", filename);
+			exit(1);
+		}
 	}
 
-	for(int x = startByte; x < 12; x++){
-		//check bit of data block for valid
-		rewind(fp);
-		fseek(fp, sb.block_size*inode_1[x], SEEK_SET);
-		fread(data, sb.block_size, sizeof(char), fp);
-		cout << data[beg_byte];
-		beg_byte++;
-		//mod by sb.block_size????
-	}
-*/			
 }
 
 
